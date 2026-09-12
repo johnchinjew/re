@@ -614,6 +614,8 @@
   function showResult(won){
     var title = document.getElementById('overlayTitle');
     title.textContent = won ? 'Cleared!' : 'Almost!';
+    document.getElementById('overlayReset').classList.toggle('primary', !won);
+    document.getElementById('overlayNew').classList.toggle('primary', won);
     overlay.hidden = false;
   }
 
