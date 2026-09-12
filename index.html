@@ -77,7 +77,6 @@
     position:relative;
     background:var(--cell);
     border:1px solid var(--cell-border);
-    overflow:hidden;
     transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
   .cell.empty{ cursor:pointer; }
@@ -89,11 +88,19 @@
     inset:3px;
     background: var(--fg);
     opacity:0.92;
-    transition: opacity 0.18s, transform 0.18s;
   }
   .shape.clearing{
-    opacity:0;
-    transform: scale(0.4);
+    /* Keep the expanding shape above every cell background without raising
+       its own cell background over neighboring animations. */
+    z-index:4;
+    pointer-events:none;
+    animation: cellPop 0.32s ease-out forwards;
+  }
+  @keyframes cellPop{
+    0%   { transform: scale(1);    opacity: 0.92; }
+    20%  { transform: scale(0.7);  opacity: 0.92; }
+    55%  { transform: scale(1.35); opacity: 0.5; }
+    100% { transform: scale(1.55); opacity: 0; }
   }
   .shape.tl{ clip-path: polygon(0 0, 100% 0, 0 100%); }
   .shape.tr{ clip-path: polygon(0 0, 100% 0, 100% 100%); }
@@ -518,7 +525,9 @@
         var cellEl = boardEl.querySelector('.cell[data-r="' + cell.r + '"][data-c="' + cell.c + '"]');
         if(cellEl){
           var shape = cellEl.querySelector('.shape');
-          if(shape) shape.classList.add('clearing');
+          if(shape){
+            shape.classList.add('clearing');
+          }
           cellEl.classList.add('empty');
           cellEl.addEventListener('click', onCellClick);
         }
