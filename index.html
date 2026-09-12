@@ -115,10 +115,27 @@
     background:var(--accent);
     top:0; left:0;
     transform: translate(-50%,-50%);
-    transition: left 0.32s linear, top 0.32s linear, opacity 0.15s linear;
+    transition: left 0.24s linear, top 0.24s linear, opacity 0.15s linear;
     pointer-events:none;
     opacity:0;
     z-index:5;
+  }
+  /* squash (anticipation) then stretch (release) along the fire axis;
+     deliberately longer than stepDelay so it's still mid-release when the
+     ball's first move starts, instead of finishing while it sits still */
+  #ball.launch-x{ animation: launchX 0.34s ease-out; }
+  #ball.launch-y{ animation: launchY 0.34s ease-out; }
+  @keyframes launchX{
+    0%   { transform: translate(-50%,-50%) scaleX(1)    scaleY(1); }
+    30%  { transform: translate(-50%,-50%) scaleX(0.6)  scaleY(1.3); }
+    65%  { transform: translate(-50%,-50%) scaleX(1.45) scaleY(0.75); }
+    100% { transform: translate(-50%,-50%) scaleX(1)    scaleY(1); }
+  }
+  @keyframes launchY{
+    0%   { transform: translate(-50%,-50%) scaleX(1)    scaleY(1); }
+    30%  { transform: translate(-50%,-50%) scaleX(1.3)  scaleY(0.6); }
+    65%  { transform: translate(-50%,-50%) scaleX(0.75) scaleY(1.45); }
+    100% { transform: translate(-50%,-50%) scaleX(1)    scaleY(1); }
   }
 
   footer{
@@ -541,8 +558,12 @@
     ballEl.getBoundingClientRect(); // force reflow so the jump applies before re-enabling transitions
     ballEl.style.transition = '';
 
+    ballEl.classList.remove('launch-x', 'launch-y');
+    void ballEl.offsetWidth; // reflow so re-adding the same class restarts the animation
+    ballEl.classList.add(dir === 'left' || dir === 'right' ? 'launch-x' : 'launch-y');
+
     var i = 1; // index into path, 0 is start
-    var stepDelay = 320;
+    var stepDelay = 240;
 
     function step(){
       if(i >= result.path.length){
